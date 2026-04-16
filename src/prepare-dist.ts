@@ -3,6 +3,13 @@ import { resolve } from 'node:path';
 import type { PrepareDistPlugin } from './types';
 import { transformPackage } from './transform-package';
 import { copyMetadata } from './copy-metadata';
+import { nxConfigPlugin } from './plugins/nx-config';
+import { customElementsManifestPlugin } from './plugins/custom-elements-manifest';
+
+const BUILT_IN_PLUGINS: ReadonlyArray<PrepareDistPlugin> = [
+  nxConfigPlugin(),
+  customElementsManifestPlugin(),
+];
 
 export interface PrepareDistOptions {
   readonly path?: string;
@@ -25,7 +32,7 @@ export function prepareDist({ path = '.', dist = 'dist', plugins = [] }: Prepare
   transformPackage({ packageDir, distDir, distName: dist });
   copyMetadata(process.cwd(), distDir);
 
-  for (const plugin of plugins) {
+  for (const plugin of [...BUILT_IN_PLUGINS, ...plugins]) {
     plugin.execute({ packageDir, distDir, distName: dist });
   }
 }

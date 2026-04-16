@@ -124,7 +124,8 @@ If the versions don't match, the action fails with a clear error message. This c
 
 The action ships with built-in plugins that auto-detect ecosystem-specific files and transform them for publishing. If the files don't exist, the plugin does nothing -- no configuration needed.
 
-### Nx
+<details>
+<summary><strong>Nx</strong></summary>
 
 Auto-detects `executors.json` and `generators.json` in the package directory:
 
@@ -158,13 +159,18 @@ Auto-detects `executors.json` and `generators.json` in the package directory:
 
 The schema file at `src/nx/schema.json` is copied to `dist/nx/schema.json`.
 
-### Custom Elements Manifest
+</details>
+
+<details>
+<summary><strong>Custom Elements Manifest</strong></summary>
 
 Auto-detects `custom-elements.json` in the package directory and strips dist prefixes from all paths. Used by web component libraries ([Lit](https://lit.dev/), [Stencil](https://stenciljs.com/), [Shoelace](https://shoelace.style/), etc.) that follow the [Custom Elements Manifest](https://github.com/webcomponents/custom-elements-manifest) standard.
 
+</details>
+
 ## Custom plugins
 
-For ecosystem-specific transforms not covered by the built-in plugins, use the programmatic API:
+For ecosystem-specific transforms not covered by the built-in plugins, use the programmatic API. Built-in plugins always run automatically -- `plugins` adds your custom ones on top.
 
 ```bash
 npm install predist
@@ -189,36 +195,25 @@ interface PrepareDistContext {
 
 ```ts
 // scripts/prepare-dist.mjs
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import {
-  prepareDist,
-  stripDistPrefix,
-  nxConfigPlugin,
-  customElementsManifestPlugin,
-} from 'predist';
+import { prepareDist } from 'predist';
 
-// Custom plugin: copy and transform a Storybook manifest
-function storybookPlugin() {
+function buildInfoPlugin() {
   return {
-    name: 'storybook',
-    execute({ packageDir, distDir, distName }) {
-      const source = resolve(packageDir, 'storybook-static/stories.json');
-      if (!existsSync(source)) return;
-
-      const raw = readFileSync(source, 'utf-8');
-      writeFileSync(resolve(distDir, 'stories.json'), stripDistPrefix(raw, distName));
+    name: 'build-info',
+    execute({ distDir }) {
+      writeFileSync(
+        resolve(distDir, 'build-info.json'),
+        JSON.stringify({ builtAt: new Date().toISOString() }),
+      );
     },
   };
 }
 
 prepareDist({
   path: 'packages/my-lib',
-  plugins: [
-    nxConfigPlugin(),
-    customElementsManifestPlugin(),
-    storybookPlugin(),
-  ],
+  plugins: [buildInfoPlugin()],
 });
 ```
 

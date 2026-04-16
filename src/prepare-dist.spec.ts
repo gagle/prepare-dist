@@ -3,7 +3,6 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { prepareDist } from './prepare-dist';
-import { nxConfigPlugin } from './plugins/nx-config';
 
 describe('prepareDist', () => {
   let tmpDir: string;
@@ -119,7 +118,7 @@ describe('prepareDist', () => {
     it('transforms package.json paths', () => {
       const pkgDir = setupWorkspacePackage();
 
-      prepareDist({ path: pkgDir, plugins: [nxConfigPlugin()] });
+      prepareDist({ path: pkgDir });
 
       const pkg = JSON.parse(readFileSync(join(pkgDir, 'dist/package.json'), 'utf-8'));
       expect(pkg.main).toBe('index.js');
@@ -135,7 +134,7 @@ describe('prepareDist', () => {
     it('transforms executors.json and copies schema', () => {
       const pkgDir = setupWorkspacePackage();
 
-      prepareDist({ path: pkgDir, plugins: [nxConfigPlugin()] });
+      prepareDist({ path: pkgDir });
 
       const executors = JSON.parse(readFileSync(join(pkgDir, 'dist/executors.json'), 'utf-8'));
       expect(executors.executors.keys.implementation).toBe('./nx/executor');
@@ -146,7 +145,7 @@ describe('prepareDist', () => {
     it('copies metadata from repo root', () => {
       const pkgDir = setupWorkspacePackage();
 
-      prepareDist({ path: pkgDir, plugins: [nxConfigPlugin()] });
+      prepareDist({ path: pkgDir });
 
       expect(readFileSync(join(pkgDir, 'dist/README.md'), 'utf-8')).toBe('# i18n-keygen');
       expect(readFileSync(join(pkgDir, 'dist/LICENSE'), 'utf-8')).toBe('MIT');
