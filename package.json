@@ -1,10 +1,13 @@
 {
   "name": "prepare-dist",
   "version": "1.0.0",
-  "description": "GitHub Action that prepares a dist directory for npm publishing",
+  "description": "GitHub Action + CLI that prepares a dist directory for npm publishing",
   "type": "module",
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
+  "bin": {
+    "prepare-dist": "./bin/prepare-dist.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -12,7 +15,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ],
   "license": "MIT",
   "repository": {
@@ -29,10 +33,13 @@
   },
   "scripts": {
     "build": "tsdown",
-    "test": "vitest run",
+    "test": "vitest run --coverage",
+    "test:unit": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky"
   },
   "devDependencies": {
